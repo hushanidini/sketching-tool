@@ -25,7 +25,7 @@ A simple polygon drawing tool built with React and TypeScript. This application 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/polygon-drawer.git
+   git clone https://github.com/hushanidini/sketching-tool..git
    cd polygon-drawer
    ```
 

@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Stage, Layer, Line, Circle, Text } from 'react-konva';
-import {calculatePolygonArea, isCloseToFirstPoint, calculateMidpoint, calculateDistance, calculateCentroid} from '../utils/helper';
+import { calculatePolygonArea, isCloseToFirstPoint, calculateMidpoint, calculateDistance, calculateCentroid } from '../utils/helper';
 import { Point, Polygon } from "../types/polygon";
 
 const buttonStyle = {
@@ -19,21 +19,19 @@ const buttonStyle = {
 function PolygonDrawingTool() {
     const [polygons, setPolygons] = useState<Polygon[]>([]);
     const [currentPolygon, setCurrentPolygon] = useState<Point[]>([]);
-    const [isDrawingEnabled, setIsDrawingEnabled] = useState(true);
-    const [scale, setScale] = useState(10); // Default scale (1 inch = 10 feet)
-    const [dpi, setDpi] = useState(72); // Default DPI
+    const [scale, setScale] = useState(1); // Default scale (1 inch = 1 feet)
+    const [dpi, setDpi] = useState(10); // Default DPI
 
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     // Handle stage click to add points to the current polygon
     const handleStageClick = (e: any) => {
-        if (!isDrawingEnabled) return;
 
         const stage = e.target.getStage();
-        const { x, y } = stage.getPointerPosition() || { x: 0, y: 0 }; 
+        const { x, y } = stage.getPointerPosition() || { x: 0, y: 0 };
 
         if (currentPolygon.length === 0) {
-            setCurrentPolygon([{ x, y }]); 
+            setCurrentPolygon([{ x, y }]);
         } else {
             if (isCloseToFirstPoint(currentPolygon[0], { x, y })) {
                 const newPolygon: Polygon = {
@@ -43,17 +41,8 @@ function PolygonDrawingTool() {
                 setPolygons((prevPolygons) => [...prevPolygons, newPolygon]);
                 setCurrentPolygon([]);
             } else {
-                setCurrentPolygon((prevPolygon) => [...prevPolygon, { x, y }]); 
+                setCurrentPolygon((prevPolygon) => [...prevPolygon, { x, y }]);
             }
-        }
-    };
-
-    // Enable/Disable the drawing mode
-    const toggleDrawingMode = () => {
-        setIsDrawingEnabled(!isDrawingEnabled);
-        if (!isDrawingEnabled) {
-            // Reset the current polygon when re-enabling drawing mode
-            setCurrentPolygon([]);
         }
     };
 
@@ -83,9 +72,15 @@ function PolygonDrawingTool() {
         const json = JSON.stringify({ polygons, scale, dpi });
         const blob = new Blob([json], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
+      
+        const now = new Date();
+        const formattedDate = now.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+        const formattedTime = now.toTimeString().split(' ')[0].replace(/:/g, '-'); // Format as HH-MM-SS
+        const filename = `drawing_${formattedDate}_${formattedTime}.json`; 
+
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'drawing.json';
+        a.download = filename;
         a.click();
     }
 
@@ -105,7 +100,7 @@ function PolygonDrawingTool() {
                     console.error('Error parsing JSON:', error);
                 }
             };
-            reader.readAsText(file); 
+            reader.readAsText(file);
         } else {
             console.error('Please upload a valid JSON file.');
         }
@@ -228,7 +223,7 @@ function PolygonDrawingTool() {
                             <b>{` (1 inch = ${scale} feet)`}</b>
                         </label>
                         <label>
-                            <b>DPI:</b>
+                            <b>DPI (Dots per Inch):</b>
                             <input
                                 type="number"
                                 value={dpi}

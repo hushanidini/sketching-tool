@@ -1,4 +1,3 @@
-import React from 'react';
 import PolygonDrawingTool from './componets/PolygonTool';
 function App() {
   return (
